@@ -2,7 +2,8 @@ const {
   default: makeWASocket,
   useMultiFileAuthState,
   fetchLatestBaileysVersion,
-} = require("@whiskeysockets/baileys")
+// Wrapper custom kamu
+module.exports = require("@whiskeysockets/baileys")
 const P = require("pino")
 const chalk = require("chalk")
 
