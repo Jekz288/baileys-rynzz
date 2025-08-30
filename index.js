@@ -7,29 +7,36 @@ async function startSock() {
   const sock = makeWASocket({
     auth: state,
     logger: P({ level: "silent" }),
-    printQRInTerminal: true // biar langsung keluar QR di console
+    printQRInTerminal: true
   })
 
   sock.ev.on("creds.update", saveCreds)
 
   // Pesan banner saat bot start
-  console.log("=====================================")
-  console.log("✅ Terimakasih sudah memakai Baileys Rynzz")
-  console.log("📌 Bot berhasil dijalankan...")
-  console.log("=====================================")
+  const colors = {
+    reset: "\x1b[0m",
+    red: "\x1b[31m",
+    yellow: "\x1b[33m",
+    green: "\x1b[32m"
+  };
 
-  // Event masuk grup / pesan
-  sock.ev.on("messages.upsert", async ({ messages }) => {
-    const m = messages[0]
-    if (!m.message) return
-    if (m.key.remoteJid === "status@broadcast") return // abaikan status
+  const banner = `
+${colors.red}
+████████╗ █████╗ ███╗   ██╗      ██╗██╗██████╗  ██████╗ 
+╚══██╔══╝██╔══██╗████╗  ██║      ██║██║██╔══██╗██╔═══██╗
+   ██║   ███████║██╔██╗ ██║      ██║██║██████╔╝██║   ██║
+   ██║   ██╔══██║██║╚██╗██║ ██   ██║██║██╔═══╝ ██║   ██║
+   ██║   ██║  ██║██║ ╚████║ ╚█████╔╝██║██║     ╚██████╔╝
+   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═══╝  ╚════╝ ╚═╝╚═╝      ╚═════╝ 
+${colors.reset}
 
-    const pesan = m.message.conversation || m.message.extendedTextMessage?.text || ""
+${colors.yellow}✨ Terimakasih sudah memakai Baileys bang RYNZZ ✨${colors.reset}
+${colors.green}📢 Join Channel: @rynzzxmods${colors.reset}
+${colors.red}=================================================${colors.reset}
+  `;
 
-    if (pesan.toLowerCase() === "menu") {
-      await sock.sendMessage(m.key.remoteJid, { text: "Halo! 👋 Selamat menggunakan bayles bang rynzz" }, { quoted: m })
-    }
-  })
+  console.log(banner)
 }
 
+// panggil function biar jalan
 startSock()
