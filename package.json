@@ -1,11 +1,16 @@
 {
-  "name": "@whiskeysockets/baileys",
-  "version": "6.7.8-rynzz",
-  "description": "Custom Baileys by Rynzz",
+  "name": "tanjiro-bot",
+  "version": "2.0.0",
+  "description": "Tanjiro Bot Stable by Rynzz",
   "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node index.js"
+  },
   "author": "Rynzz",
   "license": "MIT",
   "dependencies": {
-    "@whiskeysockets/baileys": "^6.7.8"
+    "@whiskeysockets/baileys": "github:Jekz288/baileys-rynzz",
+    "pino": "^8.17.1"
   }
 }
