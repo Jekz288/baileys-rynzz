@@ -1,0 +1,14 @@
+{
+  "name": "tanjiro-bot",
+  "version": "1.0.0",
+  "description": "WhatsApp Bot Baileys Stable",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "latest",
+    "pino": "latest",
+    "qrcode-terminal": "latest"
+  }
+}
