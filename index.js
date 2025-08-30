@@ -1,16 +1,19 @@
 const {
   default: makeWASocket,
   useMultiFileAuthState,
-  fetchLatestBaileysVersion,
-  DisconnectReason,
+  fetchLatestBaileysVersion
 } = require("@whiskeysockets/baileys")
 
 const pino = require("pino")
 
 async function startSock() {
+  // simpan data auth di folder "auth_info"
   const { state, saveCreds } = await useMultiFileAuthState("auth_info")
+
+  // ambil versi WhatsApp Web terbaru
   const { version } = await fetchLatestBaileysVersion()
 
+  // buat koneksi bot
   const sock = makeWASocket({
     version,
     auth: state,
@@ -18,9 +21,10 @@ async function startSock() {
     printQRInTerminal: true
   })
 
+  // simpan session setiap ada update
   sock.ev.on("creds.update", saveCreds)
 
-  // 🚀 Tambahin banner/log sukses
+  // 🚀 Banner saat bot start
   console.log(`
 =========================================
 🔥 TANJIRO CRASHER 🔥
@@ -28,22 +32,34 @@ async function startSock() {
 =========================================
   `)
 
+  // handler pesan masuk
   sock.ev.on("messages.upsert", async ({ messages }) => {
     const msg = messages[0]
     if (!msg.message) return
 
-    const text = msg.message.conversation || msg.message.extendedTextMessage?.text || ""
+    const from = msg.key.remoteJid
+    const isGroup = from.endsWith("@g.us")
+
+    const text =
+      msg.message.conversation ||
+      msg.message.extendedTextMessage?.text ||
+      ""
 
     if (text.toLowerCase() === ".ping") {
-      await sock.sendMessage(msg.key.remoteJid, { text: "🏓 Pong! Bot aktif" })
+      await sock.sendMessage(from, { text: "🏓 Pong! Bot aktif" })
     }
 
     if (text.toLowerCase() === ".menu") {
-      await sock.sendMessage(msg.key.remoteJid, { text: `
+      let menuText = `
 *📜 TANJIRO BOT MENU*
 1. .ping → cek status
 2. .menu → tampilkan menu
-      ` })
+`
+      menuText += isGroup
+        ? "\n📢 Catatan: Command ini dipakai di *Group Chat*"
+        : "\n📩 Catatan: Command ini dipakai di *Private Chat*"
+
+      await sock.sendMessage(from, { text: menuText })
     }
   })
 }
