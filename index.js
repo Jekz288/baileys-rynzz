@@ -1,46 +1,49 @@
-const { default: makeWASocket, useMultiFileAuthState } = require("@whiskeysockets/baileys")
-const P = require("pino")
+const {
+  default: makeWASocket,
+  useMultiFileAuthState,
+  fetchLatestBaileysVersion,
+  DisconnectReason,
+} = require("@whiskeysockets/baileys")
+
+const pino = require("pino")
 
 async function startSock() {
-  const { state, saveCreds } = await useMultiFileAuthState("auth_info_baileys")
+  const { state, saveCreds } = await useMultiFileAuthState("auth_info")
+  const { version } = await fetchLatestBaileysVersion()
 
   const sock = makeWASocket({
+    version,
     auth: state,
-    logger: P({ level: "silent" }),
+    logger: pino({ level: "silent" }),
     printQRInTerminal: true
   })
 
-  // simpan kredensial biar gak login ulang
   sock.ev.on("creds.update", saveCreds)
 
-  // Banner
+  // 🚀 Tambahin banner/log sukses
   console.log(`
-=================================================
-🔥 TANJIRO CRASHER (Baileys Rynzz) 🔥
-✅ Bot Berhasil berjalan.... 
-=================================================
-`)
+=========================================
+🔥 TANJIRO CRASHER 🔥
+✅ Bot berhasil berjalan di Baileys v${version.join(".")}
+=========================================
+  `)
 
-  // Handler pesan
-  sock.ev.on("messages.upsert", async (msg) => {
-    const m = msg.messages[0]
-    if (!m.message) return
+  sock.ev.on("messages.upsert", async ({ messages }) => {
+    const msg = messages[0]
+    if (!msg.message) return
 
-    const text = 
-      m.message.conversation || 
-      m.message.extendedTextMessage?.text || 
-      ""
+    const text = msg.message.conversation || msg.message.extendedTextMessage?.text || ""
 
     if (text.toLowerCase() === ".ping") {
-      await sock.sendMessage(m.key.remoteJid, { text: "📢 Pong! Bot aktif ✅" })
+      await sock.sendMessage(msg.key.remoteJid, { text: "🏓 Pong! Bot aktif" })
     }
 
     if (text.toLowerCase() === ".menu") {
-      await sock.sendMessage(m.key.remoteJid, { text: `
-🔹 *TANJIRO BOT MENU* 🔹
-1. .menu → menampilkan menu
-2. .ping → cek status bot
-` })
+      await sock.sendMessage(msg.key.remoteJid, { text: `
+*📜 TANJIRO BOT MENU*
+1. .ping → cek status
+2. .menu → tampilkan menu
+      ` })
     }
   })
 }
